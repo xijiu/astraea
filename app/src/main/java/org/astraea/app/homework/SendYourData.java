@@ -23,6 +23,7 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -128,6 +129,21 @@ public class SendYourData {
 
   public record Key(List<Long> vs) {}
 
+  private static ThreadLocal<ByteArrayCache> byteArrayCache = ThreadLocal.withInitial(ByteArrayCache::new);
+
+  private static class ByteArrayCache {
+    private Map<Integer, ByteBuffer> cache = new HashMap<>();
+    public ByteBuffer createOrCache(int length) {
+      ByteBuffer bytes = cache.get(length);
+      if (bytes == null) {
+        bytes = ByteBuffer.allocate(length);
+        cache.put(length, bytes);
+      }
+      bytes.clear();
+      return bytes;
+    }
+  }
+
   public static class YourSender implements Closeable {
     private final KafkaProducer<Key, byte[]> producer;
 
@@ -139,12 +155,12 @@ public class SendYourData {
     public YourSender(String bootstrapServers) {
       Serializer<Key> serializer =
           (topic, key) -> {
-            var buffer = ByteBuffer.allocate(Long.BYTES * key.vs.size());
-            key.vs.forEach(buffer::putLong);
-            buffer.flip();
-            var bytes = new byte[buffer.remaining()];
-            buffer.get(bytes);
-            return bytes;
+            ByteArrayCache arrayCache = byteArrayCache.get();
+            ByteBuffer byteBuffer = arrayCache.createOrCache(Long.BYTES * key.vs.size());
+            for (Long v : key.vs) {
+              byteBuffer.putLong(v);
+            }
+            return byteBuffer.array();
           };
       producer =
           new KafkaProducer<>(
