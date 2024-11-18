@@ -176,7 +176,7 @@ public class SendYourData {
                   ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                   bootstrapServers,
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
-                  "gzip",
+                  "zstd",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
@@ -185,8 +185,8 @@ public class SendYourData {
                   "2000",
                   ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
                   "true",
-                  ProducerConfig.COMPRESSION_GZIP_LEVEL_CONFIG,
-                  "9"),
+                  ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
+                  "22"),
               serializer,
               new ByteArraySerializer());
     }
