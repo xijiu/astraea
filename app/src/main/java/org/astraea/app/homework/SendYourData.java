@@ -170,7 +170,7 @@ public class SendYourData {
                   ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                   bootstrapServers,
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
-                  "zstd"),
+                  "gzip"),
               serializer,
               new ByteArraySerializer());
     }
