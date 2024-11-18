@@ -33,8 +33,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.Partitioner;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.internals.BuiltInPartitioner;
+import org.apache.kafka.clients.producer.internals.StickyPartitionCache;
+import org.apache.kafka.common.Cluster;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.Serializer;
@@ -180,6 +184,8 @@ public class SendYourData {
                   "1048576",
                   ProducerConfig.LINGER_MS_CONFIG,
                   "2000",
+                  ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
+                  "true",
                   ProducerConfig.COMPRESSION_GZIP_LEVEL_CONFIG,
                   "9"),
               serializer,
@@ -215,5 +221,53 @@ public class SendYourData {
         validateWith = DurationField.class,
         converter = DurationField.class)
     Duration duration = Duration.ofSeconds(20);
+  }
+
+  public static class MyPartitioner implements Partitioner {
+
+    private final StickyPartitionCache stickyPartitionCache = new StickyPartitionCache();
+
+    public void configure(Map<String, ?> configs) {}
+
+    /**
+     * Compute the partition for the given record.
+     *
+     * @param topic The topic name
+     * @param key The key to partition on (or null if no key)
+     * @param keyBytes serialized key to partition on (or null if no key)
+     * @param value The value to partition on or null
+     * @param valueBytes serialized value to partition on or null
+     * @param cluster The current cluster metadata
+     */
+    public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster) {
+      return partition(topic, key, keyBytes, value, valueBytes, cluster, cluster.partitionsForTopic(topic).size());
+    }
+
+    /**
+     * Compute the partition for the given record.
+     *
+     * @param topic The topic name
+     * @param numPartitions The number of partitions of the given {@code topic}
+     * @param key The key to partition on (or null if no key)
+     * @param keyBytes serialized key to partition on (or null if no key)
+     * @param value The value to partition on or null
+     * @param valueBytes serialized value to partition on or null
+     * @param cluster The current cluster metadata
+     */
+    public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster,
+                         int numPartitions) {
+      return stickyPartitionCache.partition(topic, cluster);
+    }
+
+    public void close() {}
+
+    /**
+     * If a batch completed for the current sticky partition, change the sticky partition.
+     * Alternately, if no sticky partition has been determined, set one.
+     */
+    @SuppressWarnings("deprecation")
+    public void onNewBatch(String topic, Cluster cluster, int prevPartition) {
+      stickyPartitionCache.nextPartition(topic, cluster, prevPartition);
+    }
   }
 }
