@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -154,6 +155,8 @@ public class SendYourData {
 
     @Override
     public void close() throws IOException {
+      producer.flush();
+      System.out.println("total msg number is : " + LONG_ADDER.sum());
       producer.close();
     }
 
@@ -189,6 +192,7 @@ public class SendYourData {
     }
 
     private static final Set<String> topics = new ConcurrentSkipListSet<>();
+    private static final LongAdder LONG_ADDER = new LongAdder();
 
     public void send(List<String> topic, Key key) {
       for (String topicSingle : topic) {
@@ -197,6 +201,9 @@ public class SendYourData {
           System.out.println("partitions size : " + partitionInfos.size());
           System.out.println("partitions info : " + partitionInfos);
         }
+      }
+      for (String s : topic) {
+        LONG_ADDER.add(1);
       }
       topic.forEach(t -> producer.send(new ProducerRecord<>(t, key, null)));
     }
