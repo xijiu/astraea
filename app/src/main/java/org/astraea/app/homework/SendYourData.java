@@ -28,14 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.astraea.app.argument.DurationField;
@@ -184,17 +182,10 @@ public class SendYourData {
               new ByteArraySerializer());
     }
 
-    private static final Set<String> topics = new ConcurrentSkipListSet<>();
-
     public void send(List<String> topic, Key key) {
-      for (String topicSingle : topic) {
-        if (topics.add(topicSingle)) {
-          List<PartitionInfo> partitionInfos = producer.partitionsFor(topicSingle);
-          System.out.println("partitions size : " + partitionInfos.size());
-          System.out.println("partitions info : " + partitionInfos);
-        }
+      for (String t : topic) {
+        producer.send(new ProducerRecord<>(t, key, null));
       }
-      topic.forEach(t -> producer.send(new ProducerRecord<>(t, key, null)));
     }
   }
 
