@@ -172,8 +172,8 @@ public class SendYourData {
               Map.of(
                   ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                   bootstrapServers,
-                  ProducerConfig.COMPRESSION_TYPE_CONFIG,
-                  "gzip",
+//                  ProducerConfig.COMPRESSION_TYPE_CONFIG,
+//                  "gzip",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
