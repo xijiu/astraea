@@ -175,15 +175,11 @@ public class SendYourData {
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
                   "none",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
-                  "33554432",
+                  "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
-                  "2097152",
+                  "1048576",
                   ProducerConfig.LINGER_MS_CONFIG,
-                  "2000",
-                  ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,
-                  "10",
-                  ProducerConfig.COMPRESSION_GZIP_LEVEL_CONFIG,
-                  "9"),
+                  "1000"),
               serializer,
               new ByteArraySerializer());
     }
