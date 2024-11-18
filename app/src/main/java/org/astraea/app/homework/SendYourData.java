@@ -46,6 +46,9 @@ public class SendYourData {
 
   private static final int NUMBER_OF_PARTITIONS = 4;
 
+  private static final ThreadLocal<ByteArrayCache> byteArrayCache =
+      ThreadLocal.withInitial(ByteArrayCache::new);
+
   public static void main(String[] args) throws IOException, InterruptedException {
     execute(Argument.parse(new Argument(), args));
   }
@@ -129,10 +132,9 @@ public class SendYourData {
 
   public record Key(List<Long> vs) {}
 
-  private static ThreadLocal<ByteArrayCache> byteArrayCache = ThreadLocal.withInitial(ByteArrayCache::new);
+  private static final class ByteArrayCache {
+    private final Map<Integer, ByteBuffer> cache = new HashMap<>();
 
-  private static class ByteArrayCache {
-    private Map<Integer, ByteBuffer> cache = new HashMap<>();
     public ByteBuffer createOrCache(int length) {
       ByteBuffer bytes = cache.get(length);
       if (bytes == null) {
