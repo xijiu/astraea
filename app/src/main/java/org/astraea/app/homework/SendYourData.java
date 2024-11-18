@@ -174,11 +174,11 @@ public class SendYourData {
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
                   "gzip",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
-                  "33554432",
+                  "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
-                  "2097152",
+                  "102400",
                   ProducerConfig.LINGER_MS_CONFIG,
-                  "5000"),
+                  "2000"),
               serializer,
               new ByteArraySerializer());
     }
