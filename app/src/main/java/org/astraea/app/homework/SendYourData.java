@@ -23,11 +23,9 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -182,7 +180,13 @@ public class SendYourData {
               new ByteArraySerializer());
     }
 
+    private static final Set<String> allTopics = new ConcurrentSkipListSet<>();
+
     public void send(List<String> topic, Key key) {
+      boolean b = allTopics.addAll(topic);
+      if (b) {
+        System.out.println("topic SIZE is : " + allTopics.size());
+      }
       topic.forEach(t -> producer.send(new ProducerRecord<>(t, key, null)));
     }
   }
