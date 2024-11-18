@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -155,8 +154,6 @@ public class SendYourData {
 
     @Override
     public void close() throws IOException {
-      producer.flush();
-      System.out.println("total msg number is : " + LONG_ADDER.sum());
       producer.close();
     }
 
@@ -176,23 +173,22 @@ public class SendYourData {
                   ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                   bootstrapServers,
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
-                  "zstd",
+                  "gzip",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
-                  "1048576",
+                  "2097152",
                   ProducerConfig.LINGER_MS_CONFIG,
                   "2000",
-                  ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
-                  "true",
-                  ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
-                  "22"),
+                  ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION,
+                  "10",
+                  ProducerConfig.COMPRESSION_GZIP_LEVEL_CONFIG,
+                  "9"),
               serializer,
               new ByteArraySerializer());
     }
 
     private static final Set<String> topics = new ConcurrentSkipListSet<>();
-    private static final LongAdder LONG_ADDER = new LongAdder();
 
     public void send(List<String> topic, Key key) {
       for (String topicSingle : topic) {
@@ -201,9 +197,6 @@ public class SendYourData {
           System.out.println("partitions size : " + partitionInfos.size());
           System.out.println("partitions info : " + partitionInfos);
         }
-      }
-      for (String s : topic) {
-        LONG_ADDER.add(1);
       }
       topic.forEach(t -> producer.send(new ProducerRecord<>(t, key, null)));
     }
