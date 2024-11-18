@@ -175,9 +175,9 @@ public class SendYourData {
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
-                  "1048576",
+                  "204800",
                   ProducerConfig.LINGER_MS_CONFIG,
-                  "1000"),
+                  "2000"),
               serializer,
               new ByteArraySerializer());
     }
