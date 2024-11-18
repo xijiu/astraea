@@ -138,6 +138,7 @@ public class SendYourData {
     public ByteBuffer createOrCache(int length) {
       ByteBuffer bytes = cache.get(length);
       if (bytes == null) {
+        System.out.println(Thread.currentThread().getId() + ", length is " + length);
         bytes = ByteBuffer.allocate(length);
         cache.put(length, bytes);
       }
