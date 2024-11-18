@@ -174,8 +174,7 @@ public class SendYourData {
                   ProducerConfig.BATCH_SIZE_CONFIG,
                   "1048576",
                   ProducerConfig.LINGER_MS_CONFIG,
-                  "1000"
-              ),
+                  "1000"),
               serializer,
               new ByteArraySerializer());
     }
