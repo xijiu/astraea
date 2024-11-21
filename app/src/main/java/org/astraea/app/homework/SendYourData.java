@@ -172,7 +172,7 @@ public class SendYourData {
                   bootstrapServers,
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
                   "gzip",
-                  ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
+                  ProducerConfig.COMPRESSION_GZIP_LEVEL_CONFIG,
                   "1",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
