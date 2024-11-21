@@ -173,7 +173,7 @@ public class SendYourData {
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
                   "zstd",
                   ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
-                  "20",
+                  "3",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
