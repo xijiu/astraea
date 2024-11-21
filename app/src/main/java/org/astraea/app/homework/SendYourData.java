@@ -173,7 +173,7 @@ public class SendYourData {
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
                   "lz4",
                   ProducerConfig.COMPRESSION_LZ4_LEVEL_CONFIG,
-                  "1",
+                  "10",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
