@@ -44,7 +44,7 @@ import org.astraea.common.admin.TopicPartition;
 
 public class SendYourData {
 
-  private static final int NUMBER_OF_PARTITIONS = 4;
+  private static final int NUMBER_OF_PARTITIONS = 8;
 
   private static final ThreadLocal<ByteArrayCache> byteArrayCache =
       ThreadLocal.withInitial(ByteArrayCache::new);
