@@ -173,7 +173,7 @@ public class SendYourData {
                   ProducerConfig.COMPRESSION_TYPE_CONFIG,
                   "gzip",
                   ProducerConfig.COMPRESSION_GZIP_LEVEL_CONFIG,
-                  "1",
+                  "4",
                   ProducerConfig.BUFFER_MEMORY_CONFIG,
                   "16777216",
                   ProducerConfig.BATCH_SIZE_CONFIG,
