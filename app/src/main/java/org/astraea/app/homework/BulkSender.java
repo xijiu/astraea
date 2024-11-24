@@ -26,6 +26,7 @@ import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.astraea.app.argument.DataSizeField;
 import org.astraea.app.argument.StringListField;
@@ -33,6 +34,9 @@ import org.astraea.common.DataSize;
 import org.astraea.common.admin.AdminConfigs;
 
 public class BulkSender {
+
+  private static byte[] msgBody = new byte[1024 * 1024];
+
   public static void main(String[] args) throws IOException, InterruptedException {
     execute(Argument.parse(new Argument(), args));
   }
@@ -42,24 +46,41 @@ public class BulkSender {
     try (var admin =
         Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()))) {
       for (var t : param.topics) {
-        admin.createTopics(List.of(new NewTopic(t, 1, (short) 1))).all();
+        admin.createTopics(List.of(new NewTopic(t, 8, (short) 1))).all();
       }
     }
     // you must manage producers for best performance
     try (var producer =
         new KafkaProducer<>(
-            Map.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()),
-            new StringSerializer(),
-            new StringSerializer())) {
+            Map.of(
+                    ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers(),
+                    ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
+                    "true",
+                    ProducerConfig.ACKS_CONFIG,
+                    "0",
+                    ProducerConfig.COMPRESSION_TYPE_CONFIG,
+                    "zstd",
+                    ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
+                    "-100",
+                    ProducerConfig.BUFFER_MEMORY_CONFIG,
+                    "16777216",
+                    ProducerConfig.BATCH_SIZE_CONFIG,
+                    "524288",
+                    ProducerConfig.LINGER_MS_CONFIG,
+                    "2000"
+            ),
+            new ByteArraySerializer(),
+            new ByteArraySerializer())) {
       var size = new AtomicLong(0);
       var key = "key";
       var value = "value";
+      var num = 0;
       while (size.get() < param.dataSize.bytes()) {
-        var topic = param.topics.get((int) (Math.random() * param.topics.size()));
+        var topic = param.topics.get(num++ % param.topics.size());
         producer.send(
-            new ProducerRecord<>(topic, key, value),
+            new ProducerRecord<>(topic, msgBody),
             (m, e) -> {
-              if (e == null) size.addAndGet(m.serializedKeySize() + m.serializedValueSize());
+              if (e == null) size.addAndGet(m.serializedValueSize());
             });
       }
     }
