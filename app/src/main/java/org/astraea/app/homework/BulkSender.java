@@ -51,7 +51,7 @@ public class BulkSender {
     try (var admin = Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()))) {
       List<NewTopic> topics = new ArrayList<>();
       for (var t : param.topics) {
-        topics.add(new NewTopic(t, 16, (short) 1));
+        topics.add(new NewTopic(t, 8, (short) 1));
       }
       admin.createTopics(topics).all();
     }
