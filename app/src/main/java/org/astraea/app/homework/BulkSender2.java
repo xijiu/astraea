@@ -17,56 +17,54 @@
 package org.astraea.app.homework;
 
 import com.beust.jcommander.Parameter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.astraea.app.argument.DataSizeField;
 import org.astraea.app.argument.StringListField;
 import org.astraea.common.DataSize;
-import org.astraea.common.DataUnit;
 import org.astraea.common.admin.AdminConfigs;
 
-public class BulkSender {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
+public class BulkSender2 {
 
   private static byte[] msgBody = new byte[1018576];
 
-//  public static void main(String[] args) throws IOException, InterruptedException {
-//    Argument argument = new Argument();
-//    argument.topics = new ArrayList<>();
-//    argument.topics.add("topic1");
+  public static void main(String[] args) throws IOException, InterruptedException {
+    Argument argument = new Argument();
+    argument.topics = new ArrayList<>();
+    argument.topics.add("topic1");
 //    argument.topics.add("topic2");
-//    argument.dataSize = DataSize.of("300MB");
-////    args = new String[]{"--bootstrap.servers", "localhost:9092"};
-//    execute(Argument.parse(new Argument(), args));
-//  }
+    argument.dataSize = DataSize.of("300MB");
+    execute(argument);
+  }
 
   public static void execute(final Argument param) throws IOException, InterruptedException {
     // you must create topics for best configs
-    try (var admin =
-        Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()))) {
-      for (var t : param.topics) {
-        admin.createTopics(List.of(new NewTopic(t, 8, (short) 1))).all();
-      }
-    }
+//    try (var admin =
+//        Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092"))) {
+//      for (var t : param.topics) {
+//        admin.createTopics(List.of(new NewTopic(t, 8, (short) 1))).all();
+//      }
+//    }
     // you must manage producers for best performance
     try (var producer =
         new KafkaProducer<>(
             Map.of(
-                    ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers(),
+                    ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                    "localhost:9092",
                     ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
                     "true",
                     ProducerConfig.ACKS_CONFIG,
-                    "1",
+                    "0",
                     ProducerConfig.COMPRESSION_TYPE_CONFIG,
                     "zstd",
                     ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
@@ -76,22 +74,23 @@ public class BulkSender {
                     ProducerConfig.BATCH_SIZE_CONFIG,
                     "524288",
                     ProducerConfig.LINGER_MS_CONFIG,
-                    "2000",
+                    "1",
                     ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
                     "1048576"
             ),
             new ByteArraySerializer(),
             new ByteArraySerializer())) {
       var size = new AtomicLong(0);
-      var key = "key";
-      var value = "value";
       var num = 0;
       while (size.get() < param.dataSize.bytes()) {
         var topic = param.topics.get(num++ % param.topics.size());
         producer.send(
             new ProducerRecord<>(topic, msgBody),
             (m, e) -> {
-              if (e == null) size.addAndGet(m.serializedValueSize());
+              if (e == null) {
+                size.addAndGet(m.serializedValueSize());
+                System.out.println("::::::hahah: " + size);
+              }
             });
       }
     }
