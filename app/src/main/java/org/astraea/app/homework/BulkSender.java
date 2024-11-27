@@ -38,13 +38,14 @@ import org.astraea.common.admin.AdminConfigs;
 
 public class BulkSender {
 
-  private static byte[] msgBody = new byte[1018576];
+  private static byte[] msgBody = new byte[1048576];
 
   public static void main(String[] args) throws IOException, InterruptedException {
     execute(Argument.parse(new Argument(), args));
   }
 
   public static void execute(final Argument param) throws IOException, InterruptedException {
+    long begin = System.currentTimeMillis();
     System.out.println("create topic begin");
     // you must create topics for best configs
     try (var admin =
@@ -54,6 +55,7 @@ public class BulkSender {
       }
     }
     System.out.println("create topic end");
+    System.out.println("create topic cost " + (System.currentTimeMillis() - begin));
 
     // you must manage producers for best performance
     try (var producer =
@@ -63,7 +65,7 @@ public class BulkSender {
                     ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
                     "true",
                     ProducerConfig.ACKS_CONFIG,
-                    "1",
+                    "0",
                     ProducerConfig.COMPRESSION_TYPE_CONFIG,
                     "zstd",
                     ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
@@ -75,7 +77,7 @@ public class BulkSender {
                     ProducerConfig.LINGER_MS_CONFIG,
                     "2000",
                     ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
-                    "1048576"
+                    "1148576"
             ),
             new ByteArraySerializer(),
             new ByteArraySerializer())) {
@@ -94,6 +96,9 @@ public class BulkSender {
               if (e == null) size.addAndGet(m.serializedValueSize());
             });
       }
+
+      producer.flush();
+      System.out.println("total cost " + (System.currentTimeMillis() - begin));
     }
   }
 
