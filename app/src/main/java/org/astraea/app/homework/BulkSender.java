@@ -40,15 +40,9 @@ public class BulkSender {
 
   private static byte[] msgBody = new byte[1018576];
 
-//  public static void main(String[] args) throws IOException, InterruptedException {
-//    Argument argument = new Argument();
-//    argument.topics = new ArrayList<>();
-//    argument.topics.add("topic1");
-//    argument.topics.add("topic2");
-//    argument.dataSize = DataSize.of("300MB");
-////    args = new String[]{"--bootstrap.servers", "localhost:9092"};
-//    execute(Argument.parse(new Argument(), args));
-//  }
+  public static void main(String[] args) throws IOException, InterruptedException {
+    execute(Argument.parse(new Argument(), args));
+  }
 
   public static void execute(final Argument param) throws IOException, InterruptedException {
     System.out.println("create topic begin");
