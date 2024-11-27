@@ -90,7 +90,8 @@ public class BulkSender {
       var num = 0;
 
       System.out.println("param.dataSize.bytes() is " + param.dataSize.bytes());
-      while (size.get() < param.dataSize.bytes()) {
+      long totalSize = 20 * 1024 * 1024 * 1024L;
+      while (size.get() < totalSize) {
         var topic = param.topics.get(num++ % param.topics.size());
         producer.send(
             new ProducerRecord<>(topic, msgBody),
