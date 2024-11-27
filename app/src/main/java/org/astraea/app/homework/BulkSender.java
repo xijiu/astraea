@@ -67,7 +67,7 @@ public class BulkSender {
                     ProducerConfig.PARTITIONER_IGNORE_KEYS_CONFIG,
                     "true",
                     ProducerConfig.ACKS_CONFIG,
-                    "0",
+                    "1",
                     ProducerConfig.COMPRESSION_TYPE_CONFIG,
                     "zstd",
                     ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
