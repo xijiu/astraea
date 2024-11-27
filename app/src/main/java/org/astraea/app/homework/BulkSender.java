@@ -100,6 +100,7 @@ public class BulkSender {
       }
 
       producer.flush();
+      producer.close();
       System.out.println("total cost " + (System.currentTimeMillis() - begin));
     }
   }
