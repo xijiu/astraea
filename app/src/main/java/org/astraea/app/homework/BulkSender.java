@@ -48,12 +48,14 @@ public class BulkSender {
     long begin = System.currentTimeMillis();
     System.out.println("create topic begin");
     // you must create topics for best configs
-    try (var admin =
-        Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()))) {
+    try (var admin = Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()))) {
+      List<NewTopic> topics = new ArrayList<>();
       for (var t : param.topics) {
-        admin.createTopics(List.of(new NewTopic(t, 8, (short) 1))).all();
+        topics.add(new NewTopic(t, 16, (short) 1));
       }
+      admin.createTopics(topics).all();
     }
+
     System.out.println("create topic end");
     System.out.println("create topic cost " + (System.currentTimeMillis() - begin));
 
