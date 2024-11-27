@@ -51,6 +51,7 @@ public class BulkSender {
 //  }
 
   public static void execute(final Argument param) throws IOException, InterruptedException {
+    System.out.println("create topic begin");
     // you must create topics for best configs
     try (var admin =
         Admin.create(Map.of(AdminConfigs.BOOTSTRAP_SERVERS_CONFIG, param.bootstrapServers()))) {
@@ -58,6 +59,8 @@ public class BulkSender {
         admin.createTopics(List.of(new NewTopic(t, 8, (short) 1))).all();
       }
     }
+    System.out.println("create topic end");
+
     // you must manage producers for best performance
     try (var producer =
         new KafkaProducer<>(
@@ -82,10 +85,13 @@ public class BulkSender {
             ),
             new ByteArraySerializer(),
             new ByteArraySerializer())) {
+      System.out.println("created producer");
       var size = new AtomicLong(0);
       var key = "key";
       var value = "value";
       var num = 0;
+
+      System.out.println("param.dataSize.bytes() is " + param.dataSize.bytes());
       while (size.get() < param.dataSize.bytes()) {
         var topic = param.topics.get(num++ % param.topics.size());
         producer.send(
