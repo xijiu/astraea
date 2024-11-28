@@ -73,7 +73,7 @@ public class BulkSender {
                     ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
                     "-100",
                     ProducerConfig.BUFFER_MEMORY_CONFIG,
-                    "33554432",
+                    "16777216",
                     ProducerConfig.BATCH_SIZE_CONFIG,
                     "524288",
                     ProducerConfig.LINGER_MS_CONFIG,
@@ -90,7 +90,8 @@ public class BulkSender {
       var num = 0;
 
       System.out.println("param.dataSize.bytes() is " + param.dataSize.bytes());
-      long totalSize = 20 * 1024 * 1024 * 1024L;
+//      long totalSize = 20 * 1024 * 1024 * 1024L;
+      long totalSize = param.dataSize.bytes();
       while (size.get() < totalSize) {
         var topic = param.topics.get(num++ % param.topics.size());
         producer.send(
