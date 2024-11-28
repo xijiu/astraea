@@ -73,7 +73,7 @@ public class BulkSender {
                     ProducerConfig.COMPRESSION_ZSTD_LEVEL_CONFIG,
                     "-100",
                     ProducerConfig.BUFFER_MEMORY_CONFIG,
-                    "16777216",
+                    "33554432",
                     ProducerConfig.BATCH_SIZE_CONFIG,
                     "524288",
                     ProducerConfig.LINGER_MS_CONFIG,
